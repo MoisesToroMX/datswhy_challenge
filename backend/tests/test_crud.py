@@ -163,20 +163,28 @@ class TestGetCampaignsWithCount:
     assert count == 1
     assert campaigns[0].name == "Feb"
 
-  def test_filter_date_range_overlapping(self, db: Session):
-    """Date filter finds overlapping campaigns."""
+  def test_filter_by_start_date_range(self, db: Session):
+    """Date filter checks if start date is within range."""
     create_campaign(
-      db, "Long", inicio=date(2023, 1, 1), fin=date(2023, 3, 31)
+      db, "January", inicio=date(2023, 1, 15), fin=date(2023, 2, 15)
     )
     
-    # Query for February - should find the long campaign
+    # Filter for January - should find it
+    campaigns, count = crud.get_campaigns_with_count(
+      db,
+      fecha_inicio=date(2023, 1, 1),
+      fecha_fin=date(2023, 1, 31)
+    )
+    assert count == 1
+    assert campaigns[0].name == "January"
+
+    # Filter for February - should NOT find it (it started in Jan)
     campaigns, count = crud.get_campaigns_with_count(
       db,
       fecha_inicio=date(2023, 2, 1),
       fecha_fin=date(2023, 2, 28)
     )
-    assert count == 1
-    assert campaigns[0].name == "Long"
+    assert count == 0
 
   def test_combined_filters(self, db: Session):
     """Multiple filters work together."""

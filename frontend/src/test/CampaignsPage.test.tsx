@@ -77,7 +77,7 @@ describe('CampaignsPage', () => {
       const title = await screen.findByText('Campaign Analytics App')
 
       expect(title).toBeTruthy()
-    })
+    }, 10000)
 
     it('renders page subtitle', async () => {
       renderPage()

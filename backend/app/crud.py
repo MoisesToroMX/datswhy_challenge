@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List, Tuple
 from . import models
 
@@ -10,8 +10,8 @@ def get_campaigns_with_count(
   skip: int = 0,
   limit: int = 5,
   tipo_campania: Optional[str] = None,
-  fecha_inicio: Optional[datetime] = None,
-  fecha_fin: Optional[datetime] = None,
+  fecha_inicio: Optional[date] = None,
+  fecha_fin: Optional[date] = None,
   search: Optional[str] = None
 ) -> Tuple[List[models.Campaign], int]:
   query = db.query(models.Campaign)
@@ -22,8 +22,8 @@ def get_campaigns_with_count(
   if fecha_inicio and fecha_fin:
     query = query.filter(
       and_(
-        models.Campaign.fecha_inicio <= fecha_fin,
-        models.Campaign.fecha_fin >= fecha_inicio
+        models.Campaign.fecha_inicio >= fecha_inicio,
+        models.Campaign.fecha_inicio <= fecha_fin
       )
     )
 

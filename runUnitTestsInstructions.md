@@ -63,7 +63,7 @@ venv\Scripts\activate     # Windows
 ### Ejecutar todas las pruebas
 
 ```bash
-pytest
+python -m pytest
 ```
 
 ### Ejecutar con cobertura (Coverage)

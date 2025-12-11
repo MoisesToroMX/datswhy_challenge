@@ -10,7 +10,8 @@ import {
   Statistic,
   Table,
   Tabs,
-  Tag
+  Tag,
+  Tooltip
 } from 'antd'
 import type { TabsProps } from 'antd'
 import {
@@ -383,8 +384,8 @@ export const CampaignDetailModal = ({
     if (!periodsSummary) return <Spin />
 
     const { data = [], totalPeriods = 0 } = periodsSummary
-    const maxPersonas = Math.max(
-      ...data.map((p) => p.peopleImpacts ?? 0),
+    const maxVal = Math.max(
+      ...data.map((p) => Math.max(p.peopleImpacts ?? 0, p.vehicleImpacts ?? 0)),
       1
     )
 
@@ -448,7 +449,6 @@ export const CampaignDetailModal = ({
                     peopleImpacts = 0,
                     vehicleImpacts = 0
                   } = item
-                  const percent = Math.round((peopleImpacts / maxPersonas) * 100)
 
                   return (
                     <div key={period} style={{ marginBottom: 12 }}>
@@ -456,7 +456,7 @@ export const CampaignDetailModal = ({
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
-                          marginBottom: 2,
+                          marginBottom: 4,
                           alignItems: 'center'
                         }}
                       >
@@ -465,43 +465,38 @@ export const CampaignDetailModal = ({
                             background: THEME.BACKGROUND,
                             border: `1px solid ${THEME.BORDER}`,
                             color: THEME.TEXT_MAIN,
-                            marginRight: 8,
                             fontSize: 12
                           }}
                         >
                           {period}
                         </Tag>
-                        <span
-                          style={{ color: THEME.TEXT_MUTED, fontSize: 12 }}
-                        >
-                          Personas:{' '}
-                          <span
-                            style={{
-                              color: THEME.TEXT_MAIN,
-                              fontWeight: 500
-                            }}
-                          >
-                            {peopleImpacts.toLocaleString()}
-                          </span>
-                          {' | '}Vehículos:{' '}
-                          <span
-                            style={{
-                              color: THEME.TEXT_MAIN,
-                              fontWeight: 500
-                            }}
-                          >
-                            {vehicleImpacts.toLocaleString()}
-                          </span>
-                        </span>
                       </div>
-                      <Progress
-                        percent={percent}
-                        showInfo={false}
-                        strokeColor={THEME.ACCENT_GREEN}
-                        railColor={THEME.BACKGROUND}
-                        size='small'
-                        style={{ margin: 0 }}
-                      />
+
+                      <Tooltip title={`Personas: ${peopleImpacts.toLocaleString()}`}>
+                        <div style={{ marginBottom: 4 }}>
+                          <Progress
+                            percent={Math.round((peopleImpacts / maxVal) * 100)}
+                            showInfo={false}
+                            strokeColor={THEME.ACCENT_GREEN}
+                            railColor={THEME.BACKGROUND}
+                            size='small'
+                            style={{ margin: 0 }}
+                          />
+                        </div>
+                      </Tooltip>
+
+                      <Tooltip title={`Vehículos: ${vehicleImpacts.toLocaleString()}`}>
+                        <div>
+                          <Progress
+                            percent={Math.round((vehicleImpacts / maxVal) * 100)}
+                            showInfo={false}
+                            strokeColor={THEME.ACCENT_BLUE}
+                            railColor={THEME.BACKGROUND}
+                            size='small'
+                            style={{ margin: 0 }}
+                          />
+                        </div>
+                      </Tooltip>
                     </div>
                   )
                 })}

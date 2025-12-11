@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
 from fastapi import FastAPI, Depends, HTTPException, Query
@@ -166,8 +166,8 @@ def read_campaigns(
   skip: int = Query(0, ge=0),
   limit: int = Query(5, ge=1, le=100),
   tipo_campania: Optional[str] = None,
-  fecha_inicio: Optional[datetime] = None,
-  fecha_fin: Optional[datetime] = None,
+  fecha_inicio: Optional[date] = None,
+  fecha_fin: Optional[date] = None,
   search: Optional[str] = None,
   db: Session = Depends(get_db)
 ):

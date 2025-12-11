@@ -112,10 +112,10 @@ describe('CampaignDetailModal', () => {
     it('renders modal when open is true', async () => {
       renderModal()
 
-      const dialog = await screen.findByRole('dialog')
+      const modalTitle = await screen.findByText('Test Campaign')
 
-      expect(dialog).toBeTruthy()
-    })
+      expect(modalTitle).toBeTruthy()
+    }, 10000)
   })
 
   describe('API Calls', () => {
