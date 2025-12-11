@@ -1,6 +1,5 @@
-/// <reference types="vite/client" />
 import {
-  BrowserRouter,
+  HashRouter,
   Navigate,
   Route,
   Routes
@@ -21,13 +20,13 @@ export const App = () => {
         }
       }}
     >
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <HashRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/campaigns" replace />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </ConfigProvider>
   )
 }
