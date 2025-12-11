@@ -1,32 +1,29 @@
 import pandas as pd
-import numpy as np
 from datetime import datetime
 from app.database import SessionLocal, engine
 from app.models import Base, Campaign, CampaignPeriod, CampaignSite
 
+
 def clean_number(x):
   if isinstance(x, str) and '-' in x:
-    # Handle cases where numbers are formatted as dates
     return int(x.split('-')[0])
+
   return x
 
+
 def load_data():
-  # Create tables
   Base.metadata.create_all(bind=engine)
   db = SessionLocal()
 
   try:
-    # Read and clean agrupado data
     df_agrupado = pd.read_csv('data/bd_campanias_agrupado.csv')
-    
-    # Read and clean periodos data
     df_periodos = pd.read_csv('data/bd_campanias_periodos.csv')
-    df_periodos['impactos_periodo_vehiculos'] = df_periodos['impactos_periodo_vehículos'].apply(clean_number)
-    
-    # Read and clean sitios data
     df_sitios = pd.read_csv('data/bd_campanias_sitios.csv')
 
-    # Process campaigns
+    df_periodos['impactos_periodo_vehiculos'] = (
+      df_periodos['impactos_periodo_vehículos'].apply(clean_number)
+    )
+
     for _, row in df_agrupado.iterrows():
       campaign = Campaign(
         name=row['name'],
@@ -57,7 +54,6 @@ def load_data():
       )
       db.add(campaign)
 
-    # Process periods
     for _, row in df_periodos.iterrows():
       period = CampaignPeriod(
         campaign_name=row['name'],
@@ -67,7 +63,6 @@ def load_data():
       )
       db.add(period)
 
-    # Process sites
     for _, row in df_sitios.iterrows():
       site = CampaignSite(
         campaign_name=row['name'],
@@ -91,6 +86,7 @@ def load_data():
     db.rollback()
   finally:
     db.close()
+
 
 if __name__ == "__main__":
   load_data()

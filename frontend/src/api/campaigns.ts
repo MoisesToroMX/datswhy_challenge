@@ -6,13 +6,13 @@ import {
   CampaignPeriod,
   CampaignSite,
   CampaignSummary,
+  DemographicData,
+  MunicipalitySummary,
   PaginatedCampaigns,
+  PeriodData,
   PeriodsSummary,
   SitesSummary,
-  SiteTypeSummary,
-  MunicipalitySummary,
-  PeriodData,
-  DemographicData
+  SiteTypeSummary
 } from '../types/campaign'
 
 const API_URL = ''
@@ -22,123 +22,199 @@ const api = axios.create({
   timeout: 10000
 })
 
-// Mappers from Snake Case (Backend) to Camel Case (Frontend)
+type BackendCampaign = Record<string, unknown>
+type BackendPeriod = Record<string, unknown>
+type BackendSite = Record<string, unknown>
+type BackendSiteType = Record<string, unknown>
+type BackendMunicipality = Record<string, unknown>
+type BackendPeriodData = Record<string, unknown>
+type BackendDemographic = Record<string, unknown>
+type BackendSitesSummary = Record<string, unknown>
+type BackendPeriodsSummary = Record<string, unknown>
+type BackendCampaignSummary = Record<string, unknown>
 
-const mapCampaignToFrontend = (data: any): Campaign => ({
-  name: data.name,
-  campaignType: data.campaign_type || data.tipo_campania,
-  startDate: data.start_date || data.fecha_inicio,
-  endDate: data.end_date || data.fecha_fin,
-  metroZoneUniverse: data.metro_zone_universe || data.universo_zona_metro,
-  peopleImpacts: data.people_impacts || data.impactos_personas,
-  vehicleImpacts: data.vehicle_impacts || data.impactos_vehiculos,
-  calculatedFrequency: data.calculated_frequency || data.frecuencia_calculada,
-  averageFrequency: data.average_frequency || data.frecuencia_promedio,
-  reach: data.reach || data.alcance,
-  sesAB: data.ses_ab || data.nse_ab,
-  sesC: data.ses_c || data.nse_c,
-  sesCPlus: data.ses_c_plus || data.nse_cmas,
-  sesD: data.ses_d || data.nse_d,
-  sesDPlus: data.ses_d_plus || data.nse_dmas,
-  sesE: data.ses_e || data.nse_e,
-  age0To14: data.age_0_14 || data.edad_0a14,
-  age15To19: data.age_15_19 || data.edad_15a19,
-  age20To24: data.age_20_24 || data.edad_20a24,
-  age25To34: data.age_25_34 || data.edad_25a34,
-  age35To44: data.age_35_44 || data.edad_35a44,
-  age45To64: data.age_45_64 || data.edad_45a64,
-  age65Plus: data.age_65_plus || data.edad_65mas,
-  men: data.men || data.hombres,
-  women: data.women || data.mujeres
+const getString = (
+  data: Record<string, unknown>,
+  ...keys: string[]
+): string => {
+  for (const key of keys) {
+    if (typeof data[key] === 'string') return data[key] as string
+  }
+  return ''
+}
+
+const getNumber = (
+  data: Record<string, unknown>,
+  ...keys: string[]
+): number => {
+  for (const key of keys) {
+    if (typeof data[key] === 'number') return data[key] as number
+  }
+  return 0
+}
+
+const mapCampaignToFrontend = (data: BackendCampaign): Campaign => ({
+  name: getString(data, 'name'),
+  campaignType: getString(data, 'campaign_type', 'tipo_campania'),
+  startDate: getString(data, 'start_date', 'fecha_inicio'),
+  endDate: getString(data, 'end_date', 'fecha_fin'),
+  metroZoneUniverse: getNumber(data, 'metro_zone_universe', 'universo_zona_metro'),
+  peopleImpacts: getNumber(data, 'people_impacts', 'impactos_personas'),
+  vehicleImpacts: getNumber(data, 'vehicle_impacts', 'impactos_vehiculos'),
+  calculatedFrequency: getNumber(
+    data,
+    'calculated_frequency',
+    'frecuencia_calculada'
+  ),
+  averageFrequency: getNumber(data, 'average_frequency', 'frecuencia_promedio'),
+  reach: getNumber(data, 'reach', 'alcance'),
+  sesAB: getNumber(data, 'ses_ab', 'nse_ab'),
+  sesC: getNumber(data, 'ses_c', 'nse_c'),
+  sesCPlus: getNumber(data, 'ses_c_plus', 'nse_cmas'),
+  sesD: getNumber(data, 'ses_d', 'nse_d'),
+  sesDPlus: getNumber(data, 'ses_d_plus', 'nse_dmas'),
+  sesE: getNumber(data, 'ses_e', 'nse_e'),
+  age0To14: getNumber(data, 'age_0_14', 'edad_0a14'),
+  age15To19: getNumber(data, 'age_15_19', 'edad_15a19'),
+  age20To24: getNumber(data, 'age_20_24', 'edad_20a24'),
+  age25To34: getNumber(data, 'age_25_34', 'edad_25a34'),
+  age35To44: getNumber(data, 'age_35_44', 'edad_35a44'),
+  age45To64: getNumber(data, 'age_45_64', 'edad_45a64'),
+  age65Plus: getNumber(data, 'age_65_plus', 'edad_65mas'),
+  men: getNumber(data, 'men', 'hombres'),
+  women: getNumber(data, 'women', 'mujeres')
 })
 
-const mapCampaignListItemToFrontend = (data: any): CampaignListItem => ({
+const mapCampaignListItemToFrontend = (
+  data: BackendCampaign
+): CampaignListItem => ({
   ...mapCampaignToFrontend(data),
-  sitesCount: data.sites_count,
-  periodsCount: data.periods_count
+  sitesCount: getNumber(data, 'sites_count'),
+  periodsCount: getNumber(data, 'periods_count')
 })
 
-const mapCampaignPeriodToFrontend = (data: any): CampaignPeriod => ({
-  id: data.id,
-  campaignName: data.campaign_name,
-  period: data.period,
-  periodImpactsPeople:
-    data.period_impacts_people || data.impactos_periodo_personas,
-  periodImpactsVehicles:
-    data.period_impacts_vehicles || data.impactos_periodo_vehiculos
-})
-
-const mapCampaignSiteToFrontend = (data: any): CampaignSite => ({
-  id: data.id,
-  campaignName: data.campaign_name,
-  siteCode: data.site_code || data.codigo_del_sitio,
-  furnitureType: data.furniture_type || data.tipo_de_mueble,
-  adType: data.ad_type || data.tipo_de_anuncio,
-  state: data.state || data.estado,
-  municipality: data.municipality || data.municipio,
-  metroArea: data.metro_area || data.zm,
-  frequencyBiweekly: data.frequency_biweekly || data.frecuencia_catorcenal,
-  frequencyMonthly: data.frequency_monthly || data.frecuencia_mensual,
-  impactsBiweekly: data.impacts_biweekly || data.impactos_catorcenal,
-  impactsMonthly: data.impacts_monthly || data.impactos_mensuales,
-  reachMonthly: data.reach_monthly || data.alcance_mensual
-})
-
-const mapCampaignDetailToFrontend = (data: any): CampaignDetail => ({
-  ...mapCampaignToFrontend(data),
-  periods: (data.periods || []).map(mapCampaignPeriodToFrontend),
-  sites: (data.sites || []).map(mapCampaignSiteToFrontend)
-})
-
-const mapSiteTypeSummaryToFrontend = (data: any): SiteTypeSummary => ({
-  furnitureType: data.furniture_type || data.tipo_de_mueble,
-  count: data.count,
-  totalImpacts: data.total_impacts
-})
-
-const mapMunicipalitySummaryToFrontend = (data: any): MunicipalitySummary => ({
-  municipality: data.municipality,
-  count: data.count,
-  totalImpacts: data.total_impacts
-})
-
-const mapSitesSummaryToFrontend = (data: any): SitesSummary => ({
-  totalSites: data.total_sites,
-  byType: (data.by_type || []).map(mapSiteTypeSummaryToFrontend),
-  byMunicipality: (data.by_municipality || []).map(
-    mapMunicipalitySummaryToFrontend
+const mapCampaignPeriodToFrontend = (data: BackendPeriod): CampaignPeriod => ({
+  id: getNumber(data, 'id'),
+  campaignName: getString(data, 'campaign_name'),
+  period: getString(data, 'period'),
+  periodImpactsPeople: getNumber(
+    data,
+    'period_impacts_people',
+    'impactos_periodo_personas'
+  ),
+  periodImpactsVehicles: getNumber(
+    data,
+    'period_impacts_vehicles',
+    'impactos_periodo_vehiculos'
   )
 })
 
-const mapPeriodDataToFrontend = (data: any): PeriodData => ({
-  period: data.period,
-  peopleImpacts: data.people_impacts || data.impactos_personas,
-  vehicleImpacts: data.vehicle_impacts || data.impactos_vehiculos
-})
-
-const mapPeriodsSummaryToFrontend = (data: any): PeriodsSummary => ({
-  totalPeriods: data.total_periods,
-  data: (data.data || []).map(mapPeriodDataToFrontend)
-})
-
-const mapDemographicDataToFrontend = (data: any): DemographicData => ({
-  label: data.label,
-  value: data.value
-})
-
-const mapCampaignSummaryToFrontend = (data: any): CampaignSummary => ({
-  sesDistribution: (data.ses_distribution || data.nse_distribution || []).map(
-    mapDemographicDataToFrontend
+const mapCampaignSiteToFrontend = (data: BackendSite): CampaignSite => ({
+  id: getNumber(data, 'id'),
+  campaignName: getString(data, 'campaign_name'),
+  siteCode: getString(data, 'site_code', 'codigo_del_sitio'),
+  furnitureType: getString(data, 'furniture_type', 'tipo_de_mueble'),
+  adType: getString(data, 'ad_type', 'tipo_de_anuncio'),
+  state: getString(data, 'state', 'estado'),
+  municipality: getString(data, 'municipality', 'municipio'),
+  metroArea: getString(data, 'metro_area', 'zm'),
+  frequencyBiweekly: getNumber(
+    data,
+    'frequency_biweekly',
+    'frecuencia_catorcenal'
   ),
-  ageDistribution: (data.age_distribution || []).map(
-    mapDemographicDataToFrontend
-  ),
-  genderDistribution: (data.gender_distribution || []).map(
-    mapDemographicDataToFrontend
-  )
+  frequencyMonthly: getNumber(data, 'frequency_monthly', 'frecuencia_mensual'),
+  impactsBiweekly: getNumber(data, 'impacts_biweekly', 'impactos_catorcenal'),
+  impactsMonthly: getNumber(data, 'impacts_monthly', 'impactos_mensuales'),
+  reachMonthly: getNumber(data, 'reach_monthly', 'alcance_mensual')
 })
 
-// API Calls
+const mapCampaignDetailToFrontend = (
+  data: BackendCampaign
+): CampaignDetail => {
+  const periods = Array.isArray(data.periods) ? data.periods : []
+  const sites = Array.isArray(data.sites) ? data.sites : []
+  return {
+    ...mapCampaignToFrontend(data),
+    periods: periods.map(mapCampaignPeriodToFrontend),
+    sites: sites.map(mapCampaignSiteToFrontend)
+  }
+}
+
+const mapSiteTypeSummaryToFrontend = (
+  data: BackendSiteType
+): SiteTypeSummary => ({
+  furnitureType: getString(data, 'furniture_type', 'tipo_de_mueble'),
+  count: getNumber(data, 'count'),
+  totalImpacts: getNumber(data, 'total_impacts')
+})
+
+const mapMunicipalitySummaryToFrontend = (
+  data: BackendMunicipality
+): MunicipalitySummary => ({
+  municipality: getString(data, 'municipality'),
+  count: getNumber(data, 'count'),
+  totalImpacts: getNumber(data, 'total_impacts')
+})
+
+const mapSitesSummaryToFrontend = (
+  data: BackendSitesSummary
+): SitesSummary => {
+  const byType = Array.isArray(data.by_type) ? data.by_type : []
+  const byMunicipality = Array.isArray(data.by_municipality)
+    ? data.by_municipality
+    : []
+  return {
+    totalSites: getNumber(data, 'total_sites'),
+    byType: byType.map(mapSiteTypeSummaryToFrontend),
+    byMunicipality: byMunicipality.map(mapMunicipalitySummaryToFrontend)
+  }
+}
+
+const mapPeriodDataToFrontend = (data: BackendPeriodData): PeriodData => ({
+  period: getString(data, 'period'),
+  peopleImpacts: getNumber(data, 'people_impacts', 'impactos_personas'),
+  vehicleImpacts: getNumber(data, 'vehicle_impacts', 'impactos_vehiculos')
+})
+
+const mapPeriodsSummaryToFrontend = (
+  data: BackendPeriodsSummary
+): PeriodsSummary => {
+  const periodData = Array.isArray(data.data) ? data.data : []
+  return {
+    totalPeriods: getNumber(data, 'total_periods'),
+    data: periodData.map(mapPeriodDataToFrontend)
+  }
+}
+
+const mapDemographicDataToFrontend = (
+  data: BackendDemographic
+): DemographicData => ({
+  label: getString(data, 'label'),
+  value: getNumber(data, 'value')
+})
+
+const mapCampaignSummaryToFrontend = (
+  data: BackendCampaignSummary
+): CampaignSummary => {
+  const sesDistribution = Array.isArray(data.ses_distribution)
+    ? data.ses_distribution
+    : Array.isArray(data.nse_distribution)
+      ? data.nse_distribution
+      : []
+  const ageDistribution = Array.isArray(data.age_distribution)
+    ? data.age_distribution
+    : []
+  const genderDistribution = Array.isArray(data.gender_distribution)
+    ? data.gender_distribution
+    : []
+
+  return {
+    sesDistribution: sesDistribution.map(mapDemographicDataToFrontend),
+    ageDistribution: ageDistribution.map(mapDemographicDataToFrontend),
+    genderDistribution: genderDistribution.map(mapDemographicDataToFrontend)
+  }
+}
 
 export const getCampaigns = async (
   page: number,
@@ -160,14 +236,15 @@ export const getCampaigns = async (
   if (search) params.search = search
 
   const response = await api.get('/campaigns/', { params })
-  const backendData = response.data
+  const backendData = response.data as Record<string, unknown>
+  const dataArray = Array.isArray(backendData.data) ? backendData.data : []
 
   return {
-    data: backendData.data.map(mapCampaignListItemToFrontend),
-    total: backendData.total,
-    page: backendData.page,
-    pageSize: backendData.size || backendData.page_size,
-    totalPages: backendData.total_pages
+    data: dataArray.map(mapCampaignListItemToFrontend),
+    total: getNumber(backendData, 'total'),
+    page: getNumber(backendData, 'page'),
+    pageSize: getNumber(backendData, 'size', 'page_size'),
+    totalPages: getNumber(backendData, 'total_pages')
   }
 }
 
@@ -175,26 +252,26 @@ export const getCampaignDetail = async (
   campaignId: string
 ): Promise<CampaignDetail> => {
   const response = await api.get(`/campaigns/${campaignId}`)
-  return mapCampaignDetailToFrontend(response.data)
+  return mapCampaignDetailToFrontend(response.data as BackendCampaign)
 }
 
 export const getSitesSummary = async (
   campaignId: string
 ): Promise<SitesSummary> => {
   const response = await api.get(`/campaigns/${campaignId}/sites/summary`)
-  return mapSitesSummaryToFrontend(response.data)
+  return mapSitesSummaryToFrontend(response.data as BackendSitesSummary)
 }
 
 export const getPeriodsSummary = async (
   campaignId: string
 ): Promise<PeriodsSummary> => {
   const response = await api.get(`/campaigns/${campaignId}/periods/summary`)
-  return mapPeriodsSummaryToFrontend(response.data)
+  return mapPeriodsSummaryToFrontend(response.data as BackendPeriodsSummary)
 }
 
 export const getCampaignSummary = async (
   campaignId: string
 ): Promise<CampaignSummary> => {
   const response = await api.get(`/campaigns/${campaignId}/summary`)
-  return mapCampaignSummaryToFrontend(response.data)
+  return mapCampaignSummaryToFrontend(response.data as BackendCampaignSummary)
 }

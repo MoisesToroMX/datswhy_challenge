@@ -16,9 +16,9 @@ app = FastAPI(title="Campaign Analytics API")
 
 
 def read_csv_file(file_path: Path) -> List[Dict[str, str]]:
-  """Read a CSV file and return list of dictionaries."""
   with open(file_path, 'r', encoding='utf-8') as f:
     reader = csv.DictReader(f)
+
     return list(reader)
 
 
@@ -28,6 +28,7 @@ def parse_int(value: str) -> int:
     return 0
   if '-' in value:
     return int(value.split('-')[0])
+
   return int(value)
 
 
@@ -35,6 +36,7 @@ def parse_float(value: str) -> float:
   """Parse string to float, handling empty values."""
   if not value or value.strip() == '':
     return 0.0
+
   return float(value)
 
 
@@ -70,7 +72,6 @@ def create_campaign_from_row(row: Dict[str, str]) -> models.Campaign:
 
 
 def create_period_from_row(row: Dict[str, str]) -> models.CampaignPeriod:
-  """Create CampaignPeriod model from CSV row."""
   return models.CampaignPeriod(
     campaign_name=row['name'],
     period=row['period'],
@@ -80,7 +81,6 @@ def create_period_from_row(row: Dict[str, str]) -> models.CampaignPeriod:
 
 
 def create_site_from_row(row: Dict[str, str]) -> models.CampaignSite:
-  """Create CampaignSite model from CSV row."""
   return models.CampaignSite(
     campaign_name=row['name'],
     codigo_del_sitio=row['codigo_del_sitio'],
@@ -171,7 +171,6 @@ def read_campaigns(
   search: Optional[str] = None,
   db: Session = Depends(get_db)
 ):
-  """Get campaigns with pagination, type filter, and date range filter."""
   campaigns, total = crud.get_campaigns_with_count(
     db,
     skip=skip,
@@ -232,10 +231,10 @@ def read_campaigns(
 
 @app.get("/campaigns/{campaign_id}", response_model=schemas.CampaignDetail)
 def read_campaign(campaign_id: str, db: Session = Depends(get_db)):
-  """Get detailed information for a specific campaign."""
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
     raise HTTPException(status_code=404, detail="Campaign not found")
+
   return campaign
 
 
@@ -247,10 +246,10 @@ def get_campaign_sites_summary(
   campaign_id: str,
   db: Session = Depends(get_db)
 ):
-  """Get aggregated sites summary for charts."""
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
     raise HTTPException(status_code=404, detail="Campaign not found")
+
   return crud.get_sites_summary(db, campaign_id)
 
 
@@ -262,10 +261,10 @@ def get_campaign_periods_summary(
   campaign_id: str,
   db: Session = Depends(get_db)
 ):
-  """Get aggregated periods summary for charts."""
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
     raise HTTPException(status_code=404, detail="Campaign not found")
+
   return crud.get_periods_summary(db, campaign_id)
 
 
@@ -277,8 +276,8 @@ def get_campaign_demographic_summary(
   campaign_id: str,
   db: Session = Depends(get_db)
 ):
-  """Get demographic summary for charts."""
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
     raise HTTPException(status_code=404, detail="Campaign not found")
+
   return crud.get_campaign_summary(campaign)

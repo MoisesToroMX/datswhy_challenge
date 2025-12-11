@@ -6,9 +6,9 @@ import {
   PaginationState,
   useReactTable
 } from '@tanstack/react-table'
-import { Button, Skeleton, Space, Tag, Pagination, Tooltip } from 'antd'
-import { CampaignListItem } from '../types/campaign'
+import { Button, Pagination, Skeleton, Tag, Tooltip } from 'antd'
 import { format } from 'date-fns'
+import { CampaignListItem } from '../types/campaign'
 
 interface CampaignTableProps {
   data: CampaignListItem[]
@@ -22,7 +22,6 @@ interface CampaignTableProps {
   }
 }
 
-
 const THEME = {
   HEADER_BG: '#2F3136',
   ROW_BG: '#36393F',
@@ -33,11 +32,47 @@ const THEME = {
   ACCENT_BLUE: '#3B82F6'
 }
 
-const GoogleIcon = ({ name, style }: { name: string; style?: React.CSSProperties }) => (
-  <span className="material-icons-outlined" style={{ verticalAlign: 'middle', fontSize: '18px', ...style }}>
+const GoogleIcon = (
+  { name, style }: { name: string; style?: React.CSSProperties }
+) => (
+  <span
+    className='material-icons-outlined'
+    style={{ verticalAlign: 'middle', fontSize: '18px', ...style }}
+  >
     {name}
   </span>
 )
+
+const CountTag = ({ value }: { value: number }) => (
+  <Tag
+    style={{
+      background: '#202225',
+      border: '1px solid #40444B',
+      color: '#dcddde',
+      borderRadius: '12px'
+    }}
+  >
+    {value}
+  </Tag>
+)
+
+const TypeTag = ({ type }: { type: string }) => {
+  const color = type === 'mensual' ? '#3B82F6' : '#3BA55C'
+
+  return (
+    <Tag
+      style={{
+        background: '#2F3136',
+        border: `1px solid ${color}`,
+        color: color,
+        fontWeight: 600,
+        borderRadius: '12px'
+      }}
+    >
+      {type?.toUpperCase() || ''}
+    </Tag>
+  )
+}
 
 export const CampaignTable = ({
   data,
@@ -52,28 +87,14 @@ export const CampaignTable = ({
       columnHelper.accessor('name', {
         header: 'Nombre',
         cell: (info) => (
-          <span style={{ fontWeight: 600, color: THEME.TEXT_MAIN }}>{info.getValue()}</span>
+          <span style={{ fontWeight: 600, color: THEME.TEXT_MAIN }}>
+            {info.getValue()}
+          </span>
         )
       }),
       columnHelper.accessor('campaignType', {
         header: 'Tipo',
-        cell: (info) => {
-          const type = info.getValue()
-          const color = type === 'mensual' ? '#3B82F6' : '#3BA55C'
-          return (
-            <Tag
-              style={{
-                background: '#2F3136',
-                border: `1px solid ${color}`,
-                color: color,
-                fontWeight: 600,
-                borderRadius: '12px'
-              }}
-            >
-              {type?.toUpperCase() || ''}
-            </Tag>
-          )
-        }
+        cell: (info) => <TypeTag type={info.getValue()} />
       }),
       columnHelper.accessor('peopleImpacts', {
         header: 'Impactos',
@@ -93,49 +114,48 @@ export const CampaignTable = ({
       }),
       columnHelper.accessor('sitesCount', {
         header: 'Sitios',
-        cell: (info) => (
-          <Tag style={{ background: '#202225', border: '1px solid #40444B', color: '#dcddde', borderRadius: '12px' }}>
-            {info.getValue() ?? 0}
-          </Tag>
-        )
+        cell: (info) => <CountTag value={info.getValue() ?? 0} />
       }),
       columnHelper.accessor('periodsCount', {
         header: 'Períodos',
-        cell: (info) => (
-          <Tag style={{ background: '#202225', border: '1px solid #40444B', color: '#dcddde', borderRadius: '12px' }}>
-            {info.getValue() ?? 0}
-          </Tag>
-        )
+        cell: (info) => <CountTag value={info.getValue() ?? 0} />
       }),
-
       columnHelper.accessor('startDate', {
         header: 'Inicio',
-        cell: (info) =>
-          info.getValue() ? (
+        cell: (info) => {
+          const value = info.getValue()
+          if (!value) return ''
+
+          return (
             <span style={{ color: THEME.TEXT_MUTED }}>
-              {format(new Date(info.getValue()), 'dd/MM/yyyy')}
+              {format(new Date(value), 'dd/MM/yyyy')}
             </span>
-          ) : ''
+          )
+        }
       }),
       columnHelper.accessor('endDate', {
         header: 'Fin',
-        cell: (info) =>
-          info.getValue() ? (
+        cell: (info) => {
+          const value = info.getValue()
+          if (!value) return ''
+
+          return (
             <span style={{ color: THEME.TEXT_MUTED }}>
-              {format(new Date(info.getValue()), 'dd/MM/yyyy')}
+              {format(new Date(value), 'dd/MM/yyyy')}
             </span>
-          ) : ''
+          )
+        }
       }),
       columnHelper.display({
         id: 'actions',
         header: '',
-        size: 60, // Set narrow width for actions column
+        size: 60,
         cell: (info) => (
           <div style={{ textAlign: 'center' }}>
-            <Tooltip title="Ver Detalles">
+            <Tooltip title='Ver Detalles'>
               <Button
-                type="text"
-                size="small"
+                type='text'
+                size='small'
                 onClick={(e) => {
                   e.stopPropagation()
                   onViewDetail(info.row.original)
@@ -145,7 +165,12 @@ export const CampaignTable = ({
                   borderColor: 'transparent',
                   background: 'transparent'
                 }}
-                icon={<GoogleIcon name="visibility" style={{ fontSize: '18px' }} />}
+                icon={
+                  <GoogleIcon
+                    name='visibility'
+                    style={{ fontSize: '18px' }}
+                  />
+                }
               />
             </Tooltip>
           </div>
@@ -167,9 +192,7 @@ export const CampaignTable = ({
     data,
     columns,
     pageCount: Math.ceil(pagination.total / pagination.pageSize),
-    state: {
-      pagination: paginationState
-    },
+    state: { pagination: paginationState },
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
         const newState = updater(paginationState)
@@ -182,97 +205,171 @@ export const CampaignTable = ({
     manualPagination: true
   })
 
-
   const emptyRows = Math.max(0, pagination.pageSize - data.length)
   const ROW_HEIGHT = 65
 
-  if (loading) return <Skeleton active paragraph={{ rows: 5 }} style={{ padding: 20 }} />
+  if (loading) {
+    return (
+      <Skeleton
+        active
+        paragraph={{ rows: 5 }}
+        style={{ padding: 20 }}
+      />
+    )
+  }
+
+  const renderTableHeader = () => (
+    <thead style={{ background: THEME.HEADER_BG }}>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <tr key={headerGroup.id}>
+          {headerGroup.headers.map((header) => (
+            <th
+              key={header.id}
+              style={{
+                padding: '16px 20px',
+                fontWeight: 700,
+                fontSize: 11,
+                color: THEME.TEXT_MUTED,
+                borderBottom: `1px solid ${THEME.BORDER}`,
+                letterSpacing: '0.05em',
+                width: header.getSize() !== 150
+                  ? header.getSize()
+                  : 'auto'
+              }}
+            >
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
+            </th>
+          ))}
+        </tr>
+      ))}
+    </thead>
+  )
+
+  const renderTableRow = (row: ReturnType<typeof table.getRowModel>['rows'][0]) => (
+    <tr
+      key={row.id}
+      onClick={() => onViewDetail(row.original)}
+      style={{
+        borderBottom: `1px solid ${THEME.BORDER}`,
+        cursor: 'pointer',
+        transition: 'background 0.2s'
+      }}
+      className='ant-table-row'
+    >
+      {row.getVisibleCells().map((cell) => {
+        const isAction = cell.column.id === 'actions'
+        return (
+          <td
+            key={cell.id}
+            style={{
+              padding: '16px 20px',
+              color: THEME.TEXT_MAIN,
+              width: cell.column.getSize() !== 150
+                ? cell.column.getSize()
+                : 'auto'
+            }}
+            onClick={(e) => {
+              if (isAction) e.stopPropagation()
+            }}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </td>
+        )
+      })}
+    </tr>
+  )
+
+  const renderEmptyRows = () =>
+    Array.from({ length: emptyRows }).map((_, index) => (
+      <tr
+        key={`empty-${index}`}
+        style={{
+          height: ROW_HEIGHT,
+          borderBottom: `1px solid ${THEME.BORDER}`
+        }}
+      >
+        <td colSpan={columns.length}>&nbsp;</td>
+      </tr>
+    ))
+
+  const renderEmptyState = () => (
+    <tr>
+      <td
+        colSpan={columns.length}
+        style={{
+          padding: '48px 16px',
+          textAlign: 'center',
+          height: pagination.pageSize * ROW_HEIGHT
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8
+          }}
+        >
+          <GoogleIcon
+            name='search_off'
+            style={{ fontSize: '48px', color: '#72767d' }}
+          />
+          <span style={{ color: '#72767d' }}>
+            No se encontraron campañas
+          </span>
+        </div>
+      </td>
+    </tr>
+  )
+
+  const renderPaginationInfo = () => {
+    const start = pagination.total === 0
+      ? 0
+      : (pagination.current - 1) * pagination.pageSize + 1
+    const end = Math.min(
+      pagination.current * pagination.pageSize,
+      pagination.total
+    )
+    return (
+      <div style={{ fontSize: 12, color: THEME.TEXT_MUTED }}>
+        Mostrando {start} - {end} de {pagination.total}
+      </div>
+    )
+  }
 
   return (
-    <div style={{ width: '100%', background: THEME.ROW_BG, borderRadius: 8, overflow: 'hidden' }}>
-      <div className="custom-scroll" style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', minWidth: '800px', fontSize: 13, textAlign: 'left', borderCollapse: 'collapse' }}>
-          <thead style={{ background: THEME.HEADER_BG }}>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    style={{
-                      padding: '16px 20px',
-                      fontWeight: 700,
-                      fontSize: 11,
-                      color: THEME.TEXT_MUTED,
-                      borderBottom: `1px solid ${THEME.BORDER}`,
-                      letterSpacing: '0.05em',
-                      width: header.getSize() !== 150 ? header.getSize() : 'auto' // Apply custom width if set
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
+    <div
+      style={{
+        width: '100%',
+        background: THEME.ROW_BG,
+        borderRadius: 8,
+        overflow: 'hidden'
+      }}
+    >
+      <div className='custom-scroll' style={{ overflowX: 'auto' }}>
+        <table
+          style={{
+            width: '100%',
+            minWidth: '800px',
+            fontSize: 13,
+            textAlign: 'left',
+            borderCollapse: 'collapse'
+          }}
+        >
+          {renderTableHeader()}
           <tbody>
             {table.getRowModel().rows.length > 0 ? (
               <>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    onClick={() => onViewDetail(row.original)}
-                    style={{ borderBottom: `1px solid ${THEME.BORDER}`, cursor: 'pointer', transition: 'background 0.2s' }}
-                    className="ant-table-row"
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const isAction = cell.column.id === 'actions';
-                      return (
-                        <td
-                          key={cell.id}
-                          style={{
-                            padding: '16px 20px',
-                            color: THEME.TEXT_MAIN,
-                            width: cell.column.getSize() !== 150 ? cell.column.getSize() : 'auto' // Apply custom width
-                          }}
-                          onClick={(e) => {
-                            if (isAction) {
-                              e.stopPropagation();
-                            }
-                          }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-
-                {Array.from({ length: emptyRows }).map((_, index) => (
-                  <tr key={`empty-${index}`} style={{ height: ROW_HEIGHT, borderBottom: `1px solid ${THEME.BORDER}` }}>
-                    <td colSpan={columns.length}>&nbsp;</td>
-                  </tr>
-                ))}
+                {table.getRowModel().rows.map(renderTableRow)}
+                {renderEmptyRows()}
               </>
             ) : (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  style={{ padding: '48px 16px', textAlign: 'center', height: pagination.pageSize * ROW_HEIGHT }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                    <GoogleIcon name="search_off" style={{ fontSize: '48px', color: '#72767d' }} />
-                    <span style={{ color: '#72767d' }}>No se encontraron campañas</span>
-                  </div>
-                </td>
-              </tr>
+              renderEmptyState()
             )}
           </tbody>
         </table>
@@ -288,21 +385,7 @@ export const CampaignTable = ({
           borderTop: `1px solid ${THEME.BORDER}`
         }}
       >
-        <div style={{ fontSize: 12, color: THEME.TEXT_MUTED }}>
-          Mostrando{' '}
-          {Math.min(
-            pagination.current * pagination.pageSize,
-            pagination.total
-          ) === 0
-            ? 0
-            : (pagination.current - 1) * pagination.pageSize + 1}{' '}
-          -{' '}
-          {Math.min(
-            pagination.current * pagination.pageSize,
-            pagination.total
-          )}{' '}
-          de {pagination.total}
-        </div>
+        {renderPaginationInfo()}
         <Pagination
           simple={false}
           current={pagination.current}
@@ -310,7 +393,7 @@ export const CampaignTable = ({
           pageSize={pagination.pageSize}
           onChange={pagination.onChange}
           showSizeChanger={false}
-          size="small"
+          size='small'
         />
       </div>
     </div>

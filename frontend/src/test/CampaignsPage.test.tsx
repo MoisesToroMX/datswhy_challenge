@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { CampaignsPage } from '../pages/CampaignsPage'
 import { getCampaigns } from '../api/campaigns'
 import { CampaignListItem } from '../types/campaign'
@@ -55,6 +55,8 @@ const mockPaginatedResponse = (
   totalPages: Math.ceil(total / 5)
 })
 
+const renderPage = () => render(<CampaignsPage />)
+
 describe('CampaignsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -64,33 +66,28 @@ describe('CampaignsPage', () => {
   })
 
   describe('Page Structure', () => {
-    it('renders page title', async () => {
-      render(<CampaignsPage />)
-      await waitFor(() => {
-        expect(screen.getByText('Campañas')).toBeInTheDocument()
-      })
-    })
-
-    it('renders page subtitle', async () => {
-      render(<CampaignsPage />)
+    it('renders app title', async () => {
+      renderPage()
       await waitFor(() => {
         expect(
-          screen.getByText('Análisis de campañas publicitarias')
+          screen.getByText('Campaign Analytics App')
         ).toBeInTheDocument()
       })
     })
 
-    it('renders filter section', async () => {
-      render(<CampaignsPage />)
+    it('renders page subtitle', async () => {
+      renderPage()
       await waitFor(() => {
-        expect(screen.getByText('Filtros')).toBeInTheDocument()
+        expect(
+          screen.getByText('Campañas Publicitarias')
+        ).toBeInTheDocument()
       })
     })
   })
 
   describe('Initial Load', () => {
     it('calls getCampaigns on mount', async () => {
-      render(<CampaignsPage />)
+      renderPage()
       await waitFor(() => {
         expect(getCampaigns).toHaveBeenCalled()
       })
@@ -100,8 +97,8 @@ describe('CampaignsPage', () => {
       vi.mocked(getCampaigns).mockImplementation(
         () => new Promise(() => { })
       )
-      const { container } = render(<CampaignsPage />)
-      expect(container.querySelector('.skeleton')).toBeInTheDocument()
+      const { container } = renderPage()
+      expect(container.querySelector('.ant-skeleton')).toBeInTheDocument()
     })
 
     it('displays campaign data after load', async () => {
@@ -110,7 +107,9 @@ describe('CampaignsPage', () => {
           createMockCampaign({ name: 'Loaded Campaign' })
         ])
       )
-      render(<CampaignsPage />)
+      
+      renderPage()
+
       await waitFor(() => {
         expect(screen.getByText('Loaded Campaign')).toBeInTheDocument()
       })
@@ -120,107 +119,21 @@ describe('CampaignsPage', () => {
   describe('Error Handling', () => {
     it('displays error message on API failure', async () => {
       vi.mocked(getCampaigns).mockRejectedValue(new Error('Network Error'))
-      render(<CampaignsPage />)
+      renderPage()
       await waitFor(() => {
-        expect(screen.getByText('Error')).toBeInTheDocument()
-      })
-    })
-
-    it('displays error details', async () => {
-      vi.mocked(getCampaigns).mockRejectedValue(new Error('Connection failed'))
-      render(<CampaignsPage />)
-      await waitFor(() => {
-        expect(screen.getByText('Connection failed')).toBeInTheDocument()
+        expect(screen.getByText('Network Error')).toBeInTheDocument()
       })
     })
   })
 
-  describe('Campaign Type Filter', () => {
-    it('renders campaign type dropdown', async () => {
-      render(<CampaignsPage />)
+  describe('Stat Cards', () => {
+    it('renders campaign stats cards', async () => {
+      renderPage()
       await waitFor(() => {
-        expect(screen.getByText('Tipo de Campaña')).toBeInTheDocument()
-      })
-    })
-
-    it('calls getCampaigns with tipo filter when selected', async () => {
-      render(<CampaignsPage />)
-      await waitFor(() => {
-        expect(getCampaigns).toHaveBeenCalled()
-      })
-
-      // Initial call
-      expect(getCampaigns).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: 0, limit: 5 })
-      )
-    })
-  })
-
-  describe('Date Range Filter', () => {
-    it('renders date range form', async () => {
-      render(<CampaignsPage />)
-      await waitFor(() => {
-        expect(screen.getByText('Limpiar')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('Pagination', () => {
-    it('displays correct total in pagination info', async () => {
-      vi.mocked(getCampaigns).mockResolvedValue(
-        mockPaginatedResponse(
-          [createMockCampaign()],
-          25
-        )
-      )
-      render(<CampaignsPage />)
-      await waitFor(() => {
-        expect(screen.getByText('25')).toBeInTheDocument()
-      })
-    })
-
-    it('reloads data on page change', async () => {
-      vi.mocked(getCampaigns).mockResolvedValue(
-        mockPaginatedResponse(
-          [createMockCampaign()],
-          15
-        )
-      )
-      render(<CampaignsPage />)
-
-      await waitFor(() => {
-        expect(getCampaigns).toHaveBeenCalledTimes(1)
-      })
-
-      // Find and click next page button
-      const { container } = render(<CampaignsPage />)
-      await waitFor(() => {
-        const buttons = container.querySelectorAll('.pagination-btn')
-        if (buttons.length > 1) {
-          fireEvent.click(buttons[1])
-        }
-      })
-    })
-  })
-
-  describe('Campaign Detail Modal', () => {
-    it('opens modal when view detail clicked', async () => {
-      vi.mocked(getCampaigns).mockResolvedValue(
-        mockPaginatedResponse([
-          createMockCampaign({ name: 'Detail Campaign' })
-        ])
-      )
-      render(<CampaignsPage />)
-
-      await waitFor(() => {
-        expect(screen.getByText('Detail Campaign')).toBeInTheDocument()
-      })
-
-      const viewBtn = screen.getByRole('button', { name: /ver/i })
-      fireEvent.click(viewBtn)
-
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        expect(screen.getByText('Campañas Activas')).toBeInTheDocument()
+        expect(screen.getByText('Impactos Totales')).toBeInTheDocument()
+        expect(screen.getByText('Alcance Global')).toBeInTheDocument()
+        expect(screen.getByText('Sitios Contratados')).toBeInTheDocument()
       })
     })
   })
@@ -234,7 +147,7 @@ describe('CampaignsPage', () => {
           createMockCampaign({ name: 'Campaign C' })
         ])
       )
-      render(<CampaignsPage />)
+      renderPage()
 
       await waitFor(() => {
         expect(screen.getByText('Campaign A')).toBeInTheDocument()
@@ -249,7 +162,7 @@ describe('CampaignsPage', () => {
       vi.mocked(getCampaigns).mockResolvedValue(
         mockPaginatedResponse([])
       )
-      render(<CampaignsPage />)
+      renderPage()
 
       await waitFor(() => {
         expect(

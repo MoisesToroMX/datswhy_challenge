@@ -1,6 +1,7 @@
-from sqlalchemy import Column, String, Float, Integer, Date, ForeignKey
+from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from .database import Base
+
 
 class Campaign(Base):
   __tablename__ = "campaigns"
@@ -15,16 +16,12 @@ class Campaign(Base):
   frecuencia_calculada = Column(Float)
   frecuencia_promedio = Column(Float)
   alcance = Column(Integer)
-  
-  # Demographic data
   nse_ab = Column(Float)
   nse_c = Column(Float)
   nse_cmas = Column(Float)
   nse_d = Column(Float)
   nse_dmas = Column(Float)
   nse_e = Column(Float)
-  
-  # Age groups
   edad_0a14 = Column(Float)
   edad_15a19 = Column(Float)
   edad_20a24 = Column(Float)
@@ -32,14 +29,12 @@ class Campaign(Base):
   edad_35a44 = Column(Float)
   edad_45a64 = Column(Float)
   edad_65mas = Column(Float)
-  
-  # Gender
   hombres = Column(Float)
   mujeres = Column(Float)
 
-  # Relationships
   periods = relationship("CampaignPeriod", back_populates="campaign")
   sites = relationship("CampaignSite", back_populates="campaign")
+
 
 class CampaignPeriod(Base):
   __tablename__ = "campaign_periods"
@@ -51,6 +46,7 @@ class CampaignPeriod(Base):
   impactos_periodo_vehiculos = Column(Integer)
 
   campaign = relationship("Campaign", back_populates="periods")
+
 
 class CampaignSite(Base):
   __tablename__ = "campaign_sites"

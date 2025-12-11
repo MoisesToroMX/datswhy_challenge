@@ -99,25 +99,25 @@ class PaginatedCampaigns(BaseModel):
 class SiteTypeSummary(BaseModel):
   tipo_de_mueble: str
   count: int
-  total_impactos: int
+  total_impacts: int
 
 
-class MunicipioSummary(BaseModel):
-  municipio: str
+class MunicipalitySummary(BaseModel):
+  municipality: str
   count: int
-  total_impactos: int
+  total_impacts: int
 
 
 class SitesSummary(BaseModel):
   total_sites: int
   by_type: List[SiteTypeSummary]
-  by_municipio: List[MunicipioSummary]
+  by_municipality: List[MunicipalitySummary]
 
 
 class PeriodData(BaseModel):
   period: str
-  impactos_personas: int
-  impactos_vehiculos: int
+  people_impacts: int
+  vehicle_impacts: int
 
 
 class PeriodsSummary(BaseModel):

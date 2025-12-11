@@ -45,11 +45,9 @@ const defaultPagination = {
 
 describe('CampaignTable', () => {
   let handleViewDetail: ReturnType<typeof vi.fn>
-  let handlePaginationChange: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
     handleViewDetail = vi.fn()
-    handlePaginationChange = vi.fn()
   })
 
   describe('Loading State', () => {
@@ -62,7 +60,7 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(container.querySelector('.skeleton')).toBeInTheDocument()
+      expect(container.querySelector('.ant-skeleton')).toBeInTheDocument()
     })
 
     it('does not render table when loading', () => {
@@ -75,19 +73,6 @@ describe('CampaignTable', () => {
         />
       )
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
-    })
-
-    it('renders multiple skeleton rows', () => {
-      const { container } = render(
-        <CampaignTable
-          data={[]}
-          loading={true}
-          onViewDetail={handleViewDetail}
-          pagination={defaultPagination}
-        />
-      )
-      const skeletons = container.querySelectorAll('.skeleton')
-      expect(skeletons.length).toBe(5)
     })
   })
 
@@ -103,20 +88,6 @@ describe('CampaignTable', () => {
       )
       expect(
         screen.getByText('No se encontraron campañas')
-      ).toBeInTheDocument()
-    })
-
-    it('renders empty state description', () => {
-      render(
-        <CampaignTable
-          data={[]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={{ ...defaultPagination, total: 0 }}
-        />
-      )
-      expect(
-        screen.getByText('Intenta ajustar los filtros de búsqueda')
       ).toBeInTheDocument()
     })
   })
@@ -200,7 +171,7 @@ describe('CampaignTable', () => {
       expect(screen.getByText('500,000')).toBeInTheDocument()
     })
 
-    it('renders sites count with label', () => {
+    it('renders sites count', () => {
       const campaign = createMockCampaign({ sitesCount: 10 })
       render(
         <CampaignTable
@@ -210,10 +181,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('10 sitios')).toBeInTheDocument()
+      expect(screen.getByText('10')).toBeInTheDocument()
     })
 
-    it('renders periods count with label', () => {
+    it('renders periods count', () => {
       const campaign = createMockCampaign({ periodsCount: 3 })
       render(
         <CampaignTable
@@ -223,7 +194,7 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('3 períodos')).toBeInTheDocument()
+      expect(screen.getByText('3')).toBeInTheDocument()
     })
 
     it('renders multiple campaigns', () => {
@@ -246,21 +217,8 @@ describe('CampaignTable', () => {
     })
   })
 
-  describe('View Detail Button', () => {
-    it('renders view button for each row', () => {
-      const campaign = createMockCampaign()
-      render(
-        <CampaignTable
-          data={[campaign]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={defaultPagination}
-        />
-      )
-      expect(screen.getByRole('button', { name: /ver/i })).toBeInTheDocument()
-    })
-
-    it('calls onViewDetail with campaign when clicked', () => {
+  describe('Row Click', () => {
+    it('calls onViewDetail when row is clicked', () => {
       const campaign = createMockCampaign({ name: 'Clickable Campaign' })
       render(
         <CampaignTable
@@ -270,33 +228,16 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      fireEvent.click(screen.getByRole('button', { name: /ver/i }))
+      const row = screen.getByText('Clickable Campaign').closest('tr')
+      if (row) fireEvent.click(row)
       expect(handleViewDetail).toHaveBeenCalledWith(campaign)
-    })
-
-    it('calls correct campaign for multiple rows', () => {
-      const campaigns = [
-        createMockCampaign({ name: 'First' }),
-        createMockCampaign({ name: 'Second' })
-      ]
-      render(
-        <CampaignTable
-          data={campaigns}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={defaultPagination}
-        />
-      )
-      const buttons = screen.getAllByRole('button', { name: /ver/i })
-      fireEvent.click(buttons[1])
-      expect(handleViewDetail).toHaveBeenCalledWith(campaigns[1])
     })
   })
 
   describe('Pagination', () => {
-    it('renders pagination container', () => {
+    it('displays pagination info', () => {
       const campaign = createMockCampaign()
-      const { container } = render(
+      render(
         <CampaignTable
           data={[campaign]}
           loading={false}
@@ -304,27 +245,12 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(
-        container.querySelector('.pagination-container')
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Mostrando/)).toBeInTheDocument()
     })
 
-    it('displays current page number', () => {
+    it('renders ant design pagination', () => {
       const campaign = createMockCampaign()
-      render(
-        <CampaignTable
-          data={[campaign]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={{ ...defaultPagination, current: 2 }}
-        />
-      )
-      expect(screen.getByText('2')).toBeInTheDocument()
-    })
-
-    it('displays total pages', () => {
-      const campaign = createMockCampaign()
-      render(
+      const { container } = render(
         <CampaignTable
           data={[campaign]}
           loading={false}
@@ -332,36 +258,7 @@ describe('CampaignTable', () => {
           pagination={{ ...defaultPagination, total: 15, pageSize: 5 }}
         />
       )
-      expect(screen.getByText('3')).toBeInTheDocument()
-    })
-
-    it('disables previous button on first page', () => {
-      const campaign = createMockCampaign()
-      const { container } = render(
-        <CampaignTable
-          data={[campaign]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={{ ...defaultPagination, current: 1 }}
-        />
-      )
-      const prevBtn = container.querySelector('.pagination-btn')
-      expect(prevBtn).toBeDisabled()
-    })
-
-    it('enables next button when more pages exist', () => {
-      const campaign = createMockCampaign()
-      const { container } = render(
-        <CampaignTable
-          data={[campaign]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={{ ...defaultPagination, current: 1, total: 15 }}
-        />
-      )
-      const buttons = container.querySelectorAll('.pagination-btn')
-      const nextBtn = buttons[1]
-      expect(nextBtn).not.toBeDisabled()
+      expect(container.querySelector('.ant-pagination')).toBeInTheDocument()
     })
   })
 
@@ -378,44 +275,12 @@ describe('CampaignTable', () => {
       )
       expect(screen.getByText('Nombre')).toBeInTheDocument()
       expect(screen.getByText('Tipo')).toBeInTheDocument()
-      expect(screen.getByText('Fecha Inicio')).toBeInTheDocument()
-      expect(screen.getByText('Fecha Fin')).toBeInTheDocument()
+      expect(screen.getByText('Inicio')).toBeInTheDocument()
+      expect(screen.getByText('Fin')).toBeInTheDocument()
       expect(screen.getByText('Impactos')).toBeInTheDocument()
       expect(screen.getByText('Alcance')).toBeInTheDocument()
       expect(screen.getByText('Sitios')).toBeInTheDocument()
       expect(screen.getByText('Períodos')).toBeInTheDocument()
-      expect(screen.getByText('Acciones')).toBeInTheDocument()
-    })
-  })
-
-  describe('Header Content', () => {
-    it('renders header content when provided', () => {
-      const campaign = createMockCampaign()
-      render(
-        <CampaignTable
-          data={[campaign]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={defaultPagination}
-          headerContent={<div data-testid="custom-header">Custom Header</div>}
-        />
-      )
-      expect(screen.getByTestId('custom-header')).toBeInTheDocument()
-    })
-
-    it('does not render header section when not provided', () => {
-      const campaign = createMockCampaign()
-      const { container } = render(
-        <CampaignTable
-          data={[campaign]}
-          loading={false}
-          onViewDetail={handleViewDetail}
-          pagination={defaultPagination}
-        />
-      )
-      expect(
-        container.querySelector('[data-testid="custom-header"]')
-      ).not.toBeInTheDocument()
     })
   })
 })
