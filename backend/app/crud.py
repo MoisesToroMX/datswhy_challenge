@@ -89,9 +89,9 @@ def get_sites_summary(db: Session, campaign_name: str) -> dict:
       }
       for furniture_name, stats in furniture_type_stats.items()
     ],
-    'by_municipality': [
+    'by_municipio': [
       {
-        'municipality': municipality_name,
+        'municipio': municipality_name,
         'count': stats['count'],
         'total_impacts': stats['total_impacts']
       }

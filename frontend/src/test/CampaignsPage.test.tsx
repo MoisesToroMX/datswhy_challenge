@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { CampaignsPage } from '../pages/CampaignsPage'
 import { getCampaigns } from '../api/campaigns'
 import { CampaignListItem } from '../types/campaign'
@@ -55,7 +56,11 @@ const mockPaginatedResponse = (
   totalPages: Math.ceil(total / 5)
 })
 
-const renderPage = () => render(<CampaignsPage />)
+const renderPage = () => render(
+  <MemoryRouter>
+    <CampaignsPage />
+  </MemoryRouter>
+)
 
 describe('CampaignsPage', () => {
   beforeEach(() => {
@@ -68,26 +73,25 @@ describe('CampaignsPage', () => {
   describe('Page Structure', () => {
     it('renders app title', async () => {
       renderPage()
-      await waitFor(() => {
-        expect(
-          screen.getByText('Campaign Analytics App')
-        ).toBeInTheDocument()
-      })
+
+      const title = await screen.findByText('Campaign Analytics App')
+
+      expect(title).toBeTruthy()
     })
 
     it('renders page subtitle', async () => {
       renderPage()
-      await waitFor(() => {
-        expect(
-          screen.getByText('Campañas Publicitarias')
-        ).toBeInTheDocument()
-      })
+
+      const subtitle = await screen.findByText('Campañas Publicitarias')
+
+      expect(subtitle).toBeTruthy()
     })
   })
 
   describe('Initial Load', () => {
     it('calls getCampaigns on mount', async () => {
       renderPage()
+
       await waitFor(() => {
         expect(getCampaigns).toHaveBeenCalled()
       })
@@ -97,8 +101,11 @@ describe('CampaignsPage', () => {
       vi.mocked(getCampaigns).mockImplementation(
         () => new Promise(() => { })
       )
+
       const { container } = renderPage()
-      expect(container.querySelector('.ant-skeleton')).toBeInTheDocument()
+      const skeleton = container.querySelector('.ant-skeleton')
+
+      expect(skeleton).toBeTruthy()
     })
 
     it('displays campaign data after load', async () => {
@@ -107,34 +114,40 @@ describe('CampaignsPage', () => {
           createMockCampaign({ name: 'Loaded Campaign' })
         ])
       )
-      
+
       renderPage()
 
-      await waitFor(() => {
-        expect(screen.getByText('Loaded Campaign')).toBeInTheDocument()
-      })
+      const campaignName = await screen.findByText('Loaded Campaign')
+
+      expect(campaignName).toBeTruthy()
     })
   })
 
   describe('Error Handling', () => {
     it('displays error message on API failure', async () => {
       vi.mocked(getCampaigns).mockRejectedValue(new Error('Network Error'))
+
       renderPage()
-      await waitFor(() => {
-        expect(screen.getByText('Network Error')).toBeInTheDocument()
-      })
+
+      const errorMessage = await screen.findByText('Network Error')
+
+      expect(errorMessage).toBeTruthy()
     })
   })
 
   describe('Stat Cards', () => {
     it('renders campaign stats cards', async () => {
       renderPage()
-      await waitFor(() => {
-        expect(screen.getByText('Campañas Activas')).toBeInTheDocument()
-        expect(screen.getByText('Impactos Totales')).toBeInTheDocument()
-        expect(screen.getByText('Alcance Global')).toBeInTheDocument()
-        expect(screen.getByText('Sitios Contratados')).toBeInTheDocument()
-      })
+
+      const activeCampaigns = await screen.findByText('Campañas Activas')
+      const totalImpacts = await screen.findByText('Impactos Totales')
+      const totalReach = await screen.findByText('Alcance Global')
+      const totalSites = await screen.findByText('Sitios Contratados')
+
+      expect(activeCampaigns).toBeTruthy()
+      expect(totalImpacts).toBeTruthy()
+      expect(totalReach).toBeTruthy()
+      expect(totalSites).toBeTruthy()
     })
   })
 
@@ -147,13 +160,16 @@ describe('CampaignsPage', () => {
           createMockCampaign({ name: 'Campaign C' })
         ])
       )
+
       renderPage()
 
-      await waitFor(() => {
-        expect(screen.getByText('Campaign A')).toBeInTheDocument()
-        expect(screen.getByText('Campaign B')).toBeInTheDocument()
-        expect(screen.getByText('Campaign C')).toBeInTheDocument()
-      })
+      const campaignA = await screen.findByText('Campaign A')
+      const campaignB = await screen.findByText('Campaign B')
+      const campaignC = await screen.findByText('Campaign C')
+
+      expect(campaignA).toBeTruthy()
+      expect(campaignB).toBeTruthy()
+      expect(campaignC).toBeTruthy()
     })
   })
 
@@ -162,13 +178,12 @@ describe('CampaignsPage', () => {
       vi.mocked(getCampaigns).mockResolvedValue(
         mockPaginatedResponse([])
       )
+
       renderPage()
 
-      await waitFor(() => {
-        expect(
-          screen.getByText('No se encontraron campañas')
-        ).toBeInTheDocument()
-      })
+      const emptyMessage = await screen.findByText('No se encontraron campañas')
+
+      expect(emptyMessage).toBeTruthy()
     })
   })
 })

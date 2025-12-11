@@ -103,7 +103,7 @@ class SiteTypeSummary(BaseModel):
 
 
 class MunicipalitySummary(BaseModel):
-  municipality: str
+  municipio: str
   count: int
   total_impacts: int
 
@@ -111,7 +111,7 @@ class MunicipalitySummary(BaseModel):
 class SitesSummary(BaseModel):
   total_sites: int
   by_type: List[SiteTypeSummary]
-  by_municipality: List[MunicipalitySummary]
+  by_municipio: List[MunicipalitySummary]
 
 
 class PeriodData(BaseModel):

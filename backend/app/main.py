@@ -12,7 +12,7 @@ from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Campaign Analytics API")
+app = FastAPI(title='Campaign Analytics API')
 
 
 def read_csv_file(file_path: Path) -> List[Dict[str, str]]:
@@ -103,11 +103,11 @@ def seed_database_if_empty(db: Session) -> None:
   if campaign_count > 0:
     return
 
-  base_path = Path(__file__).parent.parent / "data"
+  base_path = Path(__file__).parent.parent / 'data'
 
-  campaigns_data = read_csv_file(base_path / "bd_campanias_agrupado.csv")
-  periods_data = read_csv_file(base_path / "bd_campanias_periodos.csv")
-  sites_data = read_csv_file(base_path / "bd_campanias_sitios.csv")
+  campaigns_data = read_csv_file(base_path / 'bd_campanias_agrupado.csv')
+  periods_data = read_csv_file(base_path / 'bd_campanias_periodos.csv')
+  sites_data = read_csv_file(base_path / 'bd_campanias_sitios.csv')
 
   seen_campaigns: set[str] = set()
   for row in campaigns_data:
@@ -125,7 +125,7 @@ def seed_database_if_empty(db: Session) -> None:
   db.commit()
 
 
-@app.on_event("startup")
+@app.on_event('startup')
 async def startup_event():
   db = SessionLocal()
   try:
@@ -136,10 +136,10 @@ async def startup_event():
 
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=["*"],
+  allow_origins=['*'],
   allow_credentials=True,
-  allow_methods=["*"],
-  allow_headers=["*"],
+  allow_methods=['*'],
+  allow_headers=['*'],
 )
 
 
@@ -151,17 +151,17 @@ def get_db():
     db.close()
 
 
-@app.get("/")
+@app.get('/')
 def read_root():
-  return {"message": "Welcome to Campaign Analytics API"}
+  return {'message': 'Welcome to Campaign Analytics API'}
 
 
-@app.get("/health")
+@app.get('/health')
 def health_check():
-  return {"status": "ok"}
+  return {'status': 'ok'}
 
 
-@app.get("/campaigns/", response_model=schemas.PaginatedCampaigns)
+@app.get('/campaigns/', response_model=schemas.PaginatedCampaigns)
 def read_campaigns(
   skip: int = Query(0, ge=0),
   limit: int = Query(5, ge=1, le=100),
@@ -187,33 +187,33 @@ def read_campaigns(
     periods_count = crud.get_campaign_periods_count(db, campaign.name)
 
     campaign_dict = {
-      "name": campaign.name,
-      "tipo_campania": campaign.tipo_campania,
-      "fecha_inicio": campaign.fecha_inicio,
-      "fecha_fin": campaign.fecha_fin,
-      "universo_zona_metro": campaign.universo_zona_metro,
-      "impactos_personas": campaign.impactos_personas,
-      "impactos_vehiculos": campaign.impactos_vehiculos,
-      "frecuencia_calculada": campaign.frecuencia_calculada,
-      "frecuencia_promedio": campaign.frecuencia_promedio,
-      "alcance": campaign.alcance,
-      "nse_ab": campaign.nse_ab,
-      "nse_c": campaign.nse_c,
-      "nse_cmas": campaign.nse_cmas,
-      "nse_d": campaign.nse_d,
-      "nse_dmas": campaign.nse_dmas,
-      "nse_e": campaign.nse_e,
-      "edad_0a14": campaign.edad_0a14,
-      "edad_15a19": campaign.edad_15a19,
-      "edad_20a24": campaign.edad_20a24,
-      "edad_25a34": campaign.edad_25a34,
-      "edad_35a44": campaign.edad_35a44,
-      "edad_45a64": campaign.edad_45a64,
-      "edad_65mas": campaign.edad_65mas,
-      "hombres": campaign.hombres,
-      "mujeres": campaign.mujeres,
-      "sites_count": sites_count,
-      "periods_count": periods_count
+      'name': campaign.name,
+      'tipo_campania': campaign.tipo_campania,
+      'fecha_inicio': campaign.fecha_inicio,
+      'fecha_fin': campaign.fecha_fin,
+      'universo_zona_metro': campaign.universo_zona_metro,
+      'impactos_personas': campaign.impactos_personas,
+      'impactos_vehiculos': campaign.impactos_vehiculos,
+      'frecuencia_calculada': campaign.frecuencia_calculada,
+      'frecuencia_promedio': campaign.frecuencia_promedio,
+      'alcance': campaign.alcance,
+      'nse_ab': campaign.nse_ab,
+      'nse_c': campaign.nse_c,
+      'nse_cmas': campaign.nse_cmas,
+      'nse_d': campaign.nse_d,
+      'nse_dmas': campaign.nse_dmas,
+      'nse_e': campaign.nse_e,
+      'edad_0a14': campaign.edad_0a14,
+      'edad_15a19': campaign.edad_15a19,
+      'edad_20a24': campaign.edad_20a24,
+      'edad_25a34': campaign.edad_25a34,
+      'edad_35a44': campaign.edad_35a44,
+      'edad_45a64': campaign.edad_45a64,
+      'edad_65mas': campaign.edad_65mas,
+      'hombres': campaign.hombres,
+      'mujeres': campaign.mujeres,
+      'sites_count': sites_count,
+      'periods_count': periods_count
     }
     campaign_items.append(schemas.CampaignListItem(**campaign_dict))
 
@@ -229,17 +229,17 @@ def read_campaigns(
   )
 
 
-@app.get("/campaigns/{campaign_id}", response_model=schemas.CampaignDetail)
+@app.get('/campaigns/{campaign_id}', response_model=schemas.CampaignDetail)
 def read_campaign(campaign_id: str, db: Session = Depends(get_db)):
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
-    raise HTTPException(status_code=404, detail="Campaign not found")
+    raise HTTPException(status_code=404, detail='Campaign not found')
 
   return campaign
 
 
 @app.get(
-  "/campaigns/{campaign_id}/sites/summary",
+  '/campaigns/{campaign_id}/sites/summary',
   response_model=schemas.SitesSummary
 )
 def get_campaign_sites_summary(
@@ -248,13 +248,13 @@ def get_campaign_sites_summary(
 ):
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
-    raise HTTPException(status_code=404, detail="Campaign not found")
+    raise HTTPException(status_code=404, detail='Campaign not found')
 
   return crud.get_sites_summary(db, campaign_id)
 
 
 @app.get(
-  "/campaigns/{campaign_id}/periods/summary",
+  '/campaigns/{campaign_id}/periods/summary',
   response_model=schemas.PeriodsSummary
 )
 def get_campaign_periods_summary(
@@ -263,13 +263,13 @@ def get_campaign_periods_summary(
 ):
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
-    raise HTTPException(status_code=404, detail="Campaign not found")
+    raise HTTPException(status_code=404, detail='Campaign not found')
 
   return crud.get_periods_summary(db, campaign_id)
 
 
 @app.get(
-  "/campaigns/{campaign_id}/summary",
+  '/campaigns/{campaign_id}/summary',
   response_model=schemas.CampaignSummary
 )
 def get_campaign_demographic_summary(
@@ -278,6 +278,6 @@ def get_campaign_demographic_summary(
 ):
   campaign = crud.get_campaign(db, campaign_id)
   if campaign is None:
-    raise HTTPException(status_code=404, detail="Campaign not found")
+    raise HTTPException(status_code=404, detail='Campaign not found')
 
   return crud.get_campaign_summary(campaign)

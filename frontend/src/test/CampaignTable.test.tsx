@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CampaignTable } from '../components/CampaignTable'
 import { CampaignListItem } from '../types/campaign'
@@ -44,7 +44,8 @@ const defaultPagination = {
 }
 
 describe('CampaignTable', () => {
-  let handleViewDetail: ReturnType<typeof vi.fn>
+  let handleViewDetail: Mock
+
 
   beforeEach(() => {
     handleViewDetail = vi.fn()
@@ -60,7 +61,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(container.querySelector('.ant-skeleton')).toBeInTheDocument()
+
+      const skeleton = container.querySelector('.ant-skeleton')
+
+      expect(skeleton).toBeTruthy()
     })
 
     it('does not render table when loading', () => {
@@ -72,7 +76,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+
+      const table = screen.queryByRole('table')
+
+      expect(table).toBeNull()
     })
   })
 
@@ -86,9 +93,10 @@ describe('CampaignTable', () => {
           pagination={{ ...defaultPagination, total: 0 }}
         />
       )
-      expect(
-        screen.getByText('No se encontraron campañas')
-      ).toBeInTheDocument()
+
+      const message = screen.getByText('No se encontraron campañas')
+
+      expect(message).toBeTruthy()
     })
   })
 
@@ -103,7 +111,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('My Campaign')).toBeInTheDocument()
+
+      const nameElement = screen.getByText('My Campaign')
+
+      expect(nameElement).toBeTruthy()
     })
 
     it('renders campaign type in uppercase', () => {
@@ -116,7 +127,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('MENSUAL')).toBeInTheDocument()
+
+      const typeElement = screen.getByText('MENSUAL')
+
+      expect(typeElement).toBeTruthy()
     })
 
     it('renders formatted start date', () => {
@@ -129,7 +143,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('15/06/2023')).toBeInTheDocument()
+
+      const dateElement = screen.getByText('15/06/2023')
+
+      expect(dateElement).toBeTruthy()
     })
 
     it('renders formatted end date', () => {
@@ -142,7 +159,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('25/12/2023')).toBeInTheDocument()
+
+      const dateElement = screen.getByText('25/12/2023')
+
+      expect(dateElement).toBeTruthy()
     })
 
     it('renders people impacts with locale formatting', () => {
@@ -155,7 +175,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('1,234,567')).toBeInTheDocument()
+
+      const impactsElement = screen.getByText('1,234,567')
+
+      expect(impactsElement).toBeTruthy()
     })
 
     it('renders reach with locale formatting', () => {
@@ -168,7 +191,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('500,000')).toBeInTheDocument()
+
+      const reachElement = screen.getByText('500,000')
+
+      expect(reachElement).toBeTruthy()
     })
 
     it('renders sites count', () => {
@@ -181,7 +207,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('10')).toBeInTheDocument()
+
+      const sitesElement = screen.getByText('10')
+
+      expect(sitesElement).toBeTruthy()
     })
 
     it('renders periods count', () => {
@@ -194,7 +223,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('3')).toBeInTheDocument()
+
+      const periodsElement = screen.getByText('3')
+
+      expect(periodsElement).toBeTruthy()
     })
 
     it('renders multiple campaigns', () => {
@@ -211,9 +243,14 @@ describe('CampaignTable', () => {
           pagination={{ ...defaultPagination, total: 3 }}
         />
       )
-      expect(screen.getByText('Campaign A')).toBeInTheDocument()
-      expect(screen.getByText('Campaign B')).toBeInTheDocument()
-      expect(screen.getByText('Campaign C')).toBeInTheDocument()
+
+      const campaignA = screen.getByText('Campaign A')
+      const campaignB = screen.getByText('Campaign B')
+      const campaignC = screen.getByText('Campaign C')
+
+      expect(campaignA).toBeTruthy()
+      expect(campaignB).toBeTruthy()
+      expect(campaignC).toBeTruthy()
     })
   })
 
@@ -228,8 +265,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
+
       const row = screen.getByText('Clickable Campaign').closest('tr')
       if (row) fireEvent.click(row)
+
       expect(handleViewDetail).toHaveBeenCalledWith(campaign)
     })
   })
@@ -245,7 +284,10 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText(/Mostrando/)).toBeInTheDocument()
+
+      const paginationInfo = screen.getByText(/Mostrando/)
+
+      expect(paginationInfo).toBeTruthy()
     })
 
     it('renders ant design pagination', () => {
@@ -258,7 +300,10 @@ describe('CampaignTable', () => {
           pagination={{ ...defaultPagination, total: 15, pageSize: 5 }}
         />
       )
-      expect(container.querySelector('.ant-pagination')).toBeInTheDocument()
+
+      const pagination = container.querySelector('.ant-pagination')
+
+      expect(pagination).toBeTruthy()
     })
   })
 
@@ -273,14 +318,24 @@ describe('CampaignTable', () => {
           pagination={defaultPagination}
         />
       )
-      expect(screen.getByText('Nombre')).toBeInTheDocument()
-      expect(screen.getByText('Tipo')).toBeInTheDocument()
-      expect(screen.getByText('Inicio')).toBeInTheDocument()
-      expect(screen.getByText('Fin')).toBeInTheDocument()
-      expect(screen.getByText('Impactos')).toBeInTheDocument()
-      expect(screen.getByText('Alcance')).toBeInTheDocument()
-      expect(screen.getByText('Sitios')).toBeInTheDocument()
-      expect(screen.getByText('Períodos')).toBeInTheDocument()
+
+      const headerName = screen.getByText('Nombre')
+      const headerType = screen.getByText('Tipo')
+      const headerStart = screen.getByText('Inicio')
+      const headerEnd = screen.getByText('Fin')
+      const headerImpacts = screen.getByText('Impactos')
+      const headerReach = screen.getByText('Alcance')
+      const headerSites = screen.getByText('Sitios')
+      const headerPeriods = screen.getByText('Períodos')
+
+      expect(headerName).toBeTruthy()
+      expect(headerType).toBeTruthy()
+      expect(headerStart).toBeTruthy()
+      expect(headerEnd).toBeTruthy()
+      expect(headerImpacts).toBeTruthy()
+      expect(headerReach).toBeTruthy()
+      expect(headerSites).toBeTruthy()
+      expect(headerPeriods).toBeTruthy()
     })
   })
 })

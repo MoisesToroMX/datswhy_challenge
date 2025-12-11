@@ -4,7 +4,7 @@ from .database import Base
 
 
 class Campaign(Base):
-  __tablename__ = "campaigns"
+  __tablename__ = 'campaigns'
 
   name = Column(String, primary_key=True)
   tipo_campania = Column(String)
@@ -32,27 +32,27 @@ class Campaign(Base):
   hombres = Column(Float)
   mujeres = Column(Float)
 
-  periods = relationship("CampaignPeriod", back_populates="campaign")
-  sites = relationship("CampaignSite", back_populates="campaign")
+  periods = relationship('CampaignPeriod', back_populates='campaign')
+  sites = relationship('CampaignSite', back_populates='campaign')
 
 
 class CampaignPeriod(Base):
-  __tablename__ = "campaign_periods"
+  __tablename__ = 'campaign_periods'
 
   id = Column(Integer, primary_key=True)
-  campaign_name = Column(String, ForeignKey("campaigns.name"))
+  campaign_name = Column(String, ForeignKey('campaigns.name'))
   period = Column(String)
   impactos_periodo_personas = Column(Integer)
   impactos_periodo_vehiculos = Column(Integer)
 
-  campaign = relationship("Campaign", back_populates="periods")
+  campaign = relationship('Campaign', back_populates='periods')
 
 
 class CampaignSite(Base):
-  __tablename__ = "campaign_sites"
+  __tablename__ = 'campaign_sites'
 
   id = Column(Integer, primary_key=True)
-  campaign_name = Column(String, ForeignKey("campaigns.name"))
+  campaign_name = Column(String, ForeignKey('campaigns.name'))
   codigo_del_sitio = Column(String)
   tipo_de_mueble = Column(String)
   tipo_de_anuncio = Column(String)
@@ -65,4 +65,4 @@ class CampaignSite(Base):
   impactos_mensuales = Column(Integer)
   alcance_mensual = Column(Float)
 
-  campaign = relationship("Campaign", back_populates="sites")
+  campaign = relationship('Campaign', back_populates='sites')
