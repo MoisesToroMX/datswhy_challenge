@@ -508,7 +508,12 @@ export const CampaignsPage = () => {
                   alignItems: 'center'
                 }}
               >
-                <div style={{ flex: 1, minWidth: '250px' }}>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: screens.sm ? '250px' : '100%'
+                  }}
+                >
                   <Input
                     placeholder='Buscar campaña...'
                     allowClear
