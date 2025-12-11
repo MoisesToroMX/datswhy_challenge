@@ -71,7 +71,7 @@ python -m pytest
 Si tienes `pytest-cov` instalado:
 
 ```bash
-pytest --cov=app tests/
+python -m pytest --cov=app tests/
 ```
 
 ### Estructura de Tests Backend
