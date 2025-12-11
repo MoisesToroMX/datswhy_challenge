@@ -1,8 +1,10 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 
 export default defineConfig({
+  base: '/datswhy_challenge/',
   plugins: [react()],
   server: {
     host: true,
@@ -19,11 +21,5 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
   },
-  build: {
-    rollupOptions: {
-      input: {
-        main: './src/main.tsx',
-      },
-    },
-  },
+
 })

@@ -344,11 +344,9 @@ export const CampaignsPage = () => {
       <Popover
         trigger='click'
         placement='bottomRight'
-        styles={{
-          body: {
-            background: THEME.CARD,
-            border: `1px solid ${THEME.BORDER}`
-          }
+        overlayInnerStyle={{
+          background: THEME.CARD,
+          border: `1px solid ${THEME.BORDER}`
         }}
         content={
           <div
