@@ -471,26 +471,40 @@ export const CampaignDetailModal = ({
                           {period}
                         </Tag>
                       </div>
+                      <div style={{ marginBottom: 4 }}>
+                        <span style={{ color: THEME.TEXT_MUTED, fontSize: 12 }}>
+                          <Tooltip title="Impactos Personas">
+                            <span style={{ cursor: 'help' }}>Personas: </span>
+                          </Tooltip>
+                          <span
+                            style={{
+                              color: THEME.TEXT_MAIN,
+                              fontWeight: 500
+                            }}
+                          >
+                            {peopleImpacts.toLocaleString()}
+                          </span>
+                          {' | '}
+                          <Tooltip title="Impactos Vehículos">
+                            <span style={{ cursor: 'help' }}>Vehículos: </span>
+                          </Tooltip>
+                          <span
+                            style={{
+                              color: THEME.TEXT_MAIN,
+                              fontWeight: 500
+                            }}
+                          >
+                            {vehicleImpacts.toLocaleString()}
+                          </span>
+                        </span>
+                      </div>
 
-                      <Tooltip title={`Personas: ${peopleImpacts.toLocaleString()}`}>
-                        <div style={{ marginBottom: 4 }}>
+                      <Tooltip title={`Total Impactos: ${(peopleImpacts + vehicleImpacts).toLocaleString()}`}>
+                        <div>
                           <Progress
                             percent={Math.round((peopleImpacts / maxVal) * 100)}
                             showInfo={false}
                             strokeColor={THEME.ACCENT_GREEN}
-                            railColor={THEME.BACKGROUND}
-                            size='small'
-                            style={{ margin: 0 }}
-                          />
-                        </div>
-                      </Tooltip>
-
-                      <Tooltip title={`Vehículos: ${vehicleImpacts.toLocaleString()}`}>
-                        <div>
-                          <Progress
-                            percent={Math.round((vehicleImpacts / maxVal) * 100)}
-                            showInfo={false}
-                            strokeColor={THEME.ACCENT_BLUE}
                             railColor={THEME.BACKGROUND}
                             size='small'
                             style={{ margin: 0 }}

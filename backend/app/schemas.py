@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date
 from typing import List, Optional
 
@@ -13,8 +13,7 @@ class CampaignPeriod(CampaignPeriodBase):
   id: int
   campaign_name: str
 
-  class Config:
-    from_attributes = True
+  model_config = ConfigDict(from_attributes=True)
 
 
 class CampaignSiteBase(BaseModel):
@@ -35,8 +34,7 @@ class CampaignSite(CampaignSiteBase):
   id: int
   campaign_name: str
 
-  class Config:
-    from_attributes = True
+  model_config = ConfigDict(from_attributes=True)
 
 
 class CampaignBase(BaseModel):
@@ -68,24 +66,21 @@ class CampaignBase(BaseModel):
 
 
 class Campaign(CampaignBase):
-  class Config:
-    from_attributes = True
+  model_config = ConfigDict(from_attributes=True)
 
 
 class CampaignListItem(CampaignBase):
   sites_count: int = 0
   periods_count: int = 0
 
-  class Config:
-    from_attributes = True
+  model_config = ConfigDict(from_attributes=True)
 
 
 class CampaignDetail(Campaign):
   periods: List[CampaignPeriod]
   sites: List[CampaignSite]
 
-  class Config:
-    from_attributes = True
+  model_config = ConfigDict(from_attributes=True)
 
 
 class PaginatedCampaigns(BaseModel):

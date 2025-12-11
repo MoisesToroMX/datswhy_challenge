@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+from contextlib import asynccontextmanager
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
@@ -12,7 +13,7 @@ from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title='Campaign Analytics API')
+
 
 
 def read_csv_file(file_path: Path) -> List[Dict[str, str]]:
@@ -125,13 +126,16 @@ def seed_database_if_empty(db: Session) -> None:
   db.commit()
 
 
-@app.on_event('startup')
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
   db = SessionLocal()
   try:
     seed_database_if_empty(db)
   finally:
     db.close()
+  yield
+
+app = FastAPI(title='Campaign Analytics API', lifespan=lifespan)
 
 
 app.add_middleware(
