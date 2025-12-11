@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import axios from 'axios'
 import {
   Campaign,
@@ -15,7 +16,7 @@ import {
   SiteTypeSummary
 } from '../types/campaign'
 
-const API_URL = ''
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 const api = axios.create({
   baseURL: API_URL,
